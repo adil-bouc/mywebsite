@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { gsap } from "gsap";
@@ -10,67 +10,7 @@ import * as THREE from 'three';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const CircularLoader = () => (
-  <svg width="50" height="50" viewBox="0 0 50 50">
-    <circle
-      cx="25"
-      cy="25"
-      r="20"
-      fill="none"
-      stroke="#FFFFFF"
-      strokeWidth="4"
-      strokeLinecap="round"
-      strokeDasharray="94.25 31.41"
-    >
-      <animateTransform
-        attributeName="transform"
-        type="rotate"
-        repeatCount="indefinite"
-        dur="1s"
-        values="0 25 25;360 25 25"
-        keyTimes="0;1"
-      />
-    </circle>
-  </svg>
-);
-
-const LoaderAndFadeIn = ({ onLoadingComplete }) => {
-  const [loading, setLoading] = useState(true);
-  const loaderRef = useRef(null);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-      gsap.to(loaderRef.current, {
-        opacity: 0,
-        duration: 1,
-        ease: "power2.inOut",
-        onComplete: onLoadingComplete
-      });
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [onLoadingComplete]);
-
-  return (
-    <div ref={loaderRef} style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#000000',
-      zIndex: 9999
-    }}>
-      {loading && <CircularLoader />}
-    </div>
-  );
-};
-
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true);
   const canvasRef = useRef(null);
 
   useEffect(() => {
@@ -264,14 +204,12 @@ export default function Home() {
     window.addEventListener("mouseleave", handleMouseLeave);
     window.addEventListener("resize", onWindowResize);
 
-    // Fade in the 3D text when loading is complete
-    if (!isLoading) {
-      gsap.to(planeMesh.material.uniforms.u_opacity, {
-        value: 1,
-        duration: 1,
-        ease: "power2.inOut"
-      });
-    }
+    // Fade in the 3D text immediately
+    gsap.to(planeMesh.material.uniforms.u_opacity, {
+      value: 1,
+      duration: 1,
+      ease: "power2.inOut"
+    });
 
     const scrollTriggerSettings = {
       trigger: ".main",
@@ -345,7 +283,7 @@ export default function Home() {
       window.removeEventListener("resize", onWindowResize);
       renderer.dispose();
     };
-  }, [isLoading]);
+  }, []);
 
   const generateRows = () => {
     const rows = [];
@@ -382,7 +320,6 @@ export default function Home() {
 
   return (
     <ReactLenis root>
-      <LoaderAndFadeIn onLoadingComplete={() => setIsLoading(false)} />
       <section className="hero" ref={canvasRef}></section>
       <section className="main">
         <div className="main-content">
